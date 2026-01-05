@@ -1,0 +1,79 @@
+/* 1. EXTERNAL FONT IMPORTS (Must be at the very top) */
+/* Includes Roboto Condensed, Inter, Limelight, and Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Limelight&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* Satoshi import from Fontshare */
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap');
+
+@import 'tailwindcss';
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #1a1a1a;
+  --card-foreground: #ffffff;
+  --popover: #000000;
+  --popover-foreground: #ffffff;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #333333;
+  --muted-foreground: #999999;
+  --accent: #d4af37;
+  --accent-foreground: #000000;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: #2a2a2a;
+  --input: #1a1a1a;
+  --ring: #d4af37;
+  --radius: 0.625rem;
+}
+
+@theme inline {
+  /* 2. CUSTOM FONT DEFINITIONS */
+  --font-roboto: 'Roboto Condensed', sans-serif;
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-satoshi: 'Satoshi', sans-serif;
+  --font-limelight: 'Limelight', cursive;
+
+  /* Using Inter as the importable substitute for Neue Montreal */
+  --font-neue-montreal: 'Inter', sans-serif;
+
+  /* Default Font Overrides */
+  --font-sans: 'Roboto Condensed', 'Inter', ui-sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    /* Set Roboto Condensed as the main font per your request */
+    @apply bg-background text-foreground font-roboto;
+  }
+}

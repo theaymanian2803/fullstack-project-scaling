@@ -1,0 +1,8 @@
+export const BASE_URL = 'http://localhost:5000'
+export const PRODUCT_URL = '/api/products'
+export const USERS_URL = '/api/users'
+export const ORDERS_URL = '/api/orders'
+export const PAYPAL_URL = '/api/config/paypal'
+export const UPLOAD_URL = '/api/uploads'
+export const CONTACT_URL = '/api/contact'
+export const COMPONENT_URL = '/api/components'

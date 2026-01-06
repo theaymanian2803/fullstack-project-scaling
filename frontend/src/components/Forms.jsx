@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLoginMutation } from '../slices/userApiSlice'
+import { GoogleLogin } from '@react-oauth/google' // Added
+import { useLoginMutation, useGoogleLoginMutation } from '../slices/userApiSlice' // Added useGoogleLoginMutation
 import { setInforForUser } from '../slices/authSlice'
 
 const LoginForm = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { search } = useLocation()
@@ -15,8 +17,10 @@ const LoginForm = () => {
   const redirect = searchParams.get('redirect') || '/'
 
   const [login, { isLoading }] = useLoginMutation()
+  const [googleLogin, { isLoading: isGoogleLoading }] = useGoogleLoginMutation() // Added
   const { userInfo } = useSelector((state) => state.auth)
 
+  // Regular Email/Password Login
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -26,6 +30,18 @@ const LoginForm = () => {
     } catch (err) {
       const checkError = err?.data?.message || err?.error || 'Email or password is incorrect'
       toast.error(checkError)
+    }
+  }
+
+  // Google Login Handler
+  const handleGoogleSuccess = async (response) => {
+    try {
+      // response.credential is the ID Token from Google
+      const res = await googleLogin(response.credential).unwrap()
+      dispatch(setInforForUser({ ...res }))
+      toast.success('Logged in with Google')
+    } catch (err) {
+      toast.error(err?.data?.message || 'Google Login Failed')
     }
   }
 
@@ -88,12 +104,26 @@ const LoginForm = () => {
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-4 bg-white text-black text-xs font-black uppercase tracking-[0.2em] hover:bg-orange-500 hover:text-white transition-all duration-300 shadow-lg active:scale-95 disabled:opacity-50">
-              {isLoading ? 'Authenticating...' : 'Sign In'}
-            </button>
+            <div className="space-y-4">
+              <button
+                type="submit"
+                disabled={isLoading || isGoogleLoading}
+                className="w-full py-4 bg-white text-black text-xs font-black uppercase tracking-[0.2em] hover:bg-orange-500 hover:text-white transition-all duration-300 shadow-lg active:scale-95 disabled:opacity-50">
+                {isLoading ? 'Authenticating...' : 'Sign In'}
+              </button>
+
+              {/* Google Login Button Integrated Here */}
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => toast.error('Google Sign-In was unsuccessful')}
+                  theme="dark"
+                  shape="square"
+                  size="large"
+                  width="100%"
+                />
+              </div>
+            </div>
           </form>
 
           {/* Divider */}

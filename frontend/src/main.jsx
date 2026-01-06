@@ -31,8 +31,11 @@ import EditProductScreen from './screens/admin/EditProductScreen'
 import UsersAdminScreen from './screens/admin/UsersAdminScreen'
 import UserListAdmin from './screens/admin/UserListAdmin'
 import ContactAdmin from './screens/ContactAdmin'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
+//
 // Create a router
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 const router = createBrowserRouter([
   {
     path: '/',
@@ -160,10 +163,12 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
-      <PayPalScriptProvider deferLoading={true}>
-        <RouterProvider router={router} />
-        <ToastContainer position="top-right" autoClose={3000} theme="colored" />
-      </PayPalScriptProvider>
+      <GoogleOAuthProvider clientId={CLIENT_ID}>
+        <PayPalScriptProvider deferLoading={true}>
+          <RouterProvider router={router} />
+          <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+        </PayPalScriptProvider>
+      </GoogleOAuthProvider>
     </Provider>
   </StrictMode>
 )

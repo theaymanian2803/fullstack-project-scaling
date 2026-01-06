@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  envDir: '../', // This tells Vite to look in the root folder for your .env file
   server: {
     host: true, // Exposes the server to the network
     proxy: {

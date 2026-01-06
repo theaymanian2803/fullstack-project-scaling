@@ -1,7 +1,6 @@
 import asyncHandler from '../middleware/asyncHandler.js'
 import User from '../models/userModel.js'
 
-import { generateToken } from './../utils/generateToken.js'
 // auth user and get token
 // route Post /api/users/login
 const authUser = asyncHandler(async (req, res) => {
@@ -160,6 +159,7 @@ const updateUser = asyncHandler(async (req, res) => {
     throw new Error('User not found')
   }
 })
+
 export {
   authUser,
   registerUser,

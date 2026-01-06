@@ -11,6 +11,7 @@ import userRouter from './routes/userRoutes.js'
 import ordersRouter from './routes/orderRoutes.js'
 import uploadRouter from './routes/uploadRoute.js'
 import contactAdmin from './routes/contactRoutes.js'
+import googleAuthRouter from './routes/googleRoute.js'
 
 // Middleware Imports
 import { notFound, errorHandler } from './middleware/errorHandler.js'
@@ -40,6 +41,7 @@ app.use('/api/users', userRouter)
 app.use('/api/orders', ordersRouter)
 app.use('/api/uploads', uploadRouter)
 app.use('/api/contact', contactAdmin)
+app.use('/api/auth/google', googleAuthRouter)
 
 app.get('/api/config/paypal', (req, res) => {
   res.send({ clientId: process.env.PAYPAL_CLIENT_ID })

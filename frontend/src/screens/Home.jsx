@@ -32,7 +32,6 @@ function Home() {
   return (
     <div className="min-h-screen bg-[#F9F9F7] text-zinc-900 selection:bg-zinc-200">
       {/* 1. FIXED: SPACER TO PUSH HERO DOWN BELOW NAVBAR */}
-      <div className="h-32 md:h-44 w-full" />
 
       {/* Editorial Banner Section */}
       <section className="relative w-full px-4 md:px-10 pt-10">
@@ -89,14 +88,14 @@ function Home() {
           <div className="flex items-center justify-between mb-24">
             <div className="flex flex-col border-l-4 border-zinc-900 pl-10">
               <span className="text-zinc-400 text-xs uppercase tracking-[0.4em] font-black mb-4">
-                Evanox Archive
+                unccode style
               </span>
               <h2 className="font-serif italic text-6xl md:text-8xl text-zinc-800 tracking-tight">
                 Legends
               </h2>
             </div>
             <p className="hidden md:block max-w-[250px] text-xs text-zinc-400 leading-relaxed font-mono font-bold">
-              // REFINED SELECTION FROM THE 2026 VAULT.
+              REFINED SELECTION FROM THE 2026 VAULT.
             </p>
           </div>
 
@@ -106,13 +105,13 @@ function Home() {
         </section>
 
         {/* Basketball Section */}
-        <section className="pt-24 border-t-2 border-zinc-100">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-8">
+        <section className="pt-10 border-t-2 border-zinc-100">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-8">
             <div className="space-y-4">
               <span className="text-zinc-400 text-xs uppercase tracking-[0.4em] font-black">
                 Performance Lab
               </span>
-              <h2 className="font-serif text-6xl md:text-8xl text-zinc-800 tracking-tight leading-none">
+              <h2 className="font-serif text-4xl md:text-6xl text-zinc-800 tracking-tight leading-none">
                 Basketball <span className="italic font-light">Laboratory</span>
               </h2>
             </div>

@@ -1,4 +1,5 @@
 import path from 'path'
+import { fileURLToPath } from 'url'
 import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
@@ -50,28 +51,21 @@ app.get('/api/config/paypal', (req, res) => {
 })
 
 // 3. STATIC FILES & PRODUCTION LOGIC
-const __dirname = path.resolve()
 
 // Static folder for uploaded images
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-// if (process.env.NODE_ENV === 'production') {
-//   const distPath = path.join(__dirname, '/frontend/dist')
+if (process.env.NODE_ENV === 'production') {
+  // Use '..' to go UP from /backend/ to the root, then into /frontend/dist/
 
-//   // Serve the frontend build files
-//   app.use(express.static(distPath))
+  app.use(express.static(path.join(__dirname, 'frontend/dist')))
 
-//   // EXPRESS 5 BULLETPROOF FIX:
-//   // We use a Regular Expression literal to match everything.
-//   // This bypasses the 'path-to-regexp' parameter naming requirement.
-//   app.get(/^(?!\/api).+/, (req, res) => {
-//     res.sendFile(path.resolve(distPath, 'index.html'))
-//   })
-// } else {
-//   app.get('/', (req, res) => {
-//     res.send('API is running...')
-//   })
-// }
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend/dist/index.html'))
+  })
+}
 
 // 4. ERROR HANDLING (Must be after all routes)
 app.use(notFound)

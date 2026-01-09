@@ -7,11 +7,6 @@ function Hero() {
       <div className="hidden md:block absolute top-0 right-0 w-1/4 h-full bg-zinc-50 skew-x-[-10deg] translate-x-10"></div>
 
       {/* MOBILE IMAGE OVERLAY */}
-      <div
-        className="absolute inset-0 md:hidden bg-[url('/ex.png')] bg-cover bg-center"
-        aria-hidden="true">
-        <div className="absolute inset-0 bg-black/40"></div>
-      </div>
 
       <div className="container mx-auto px-6 md:px-12 lg:px-20 z-10 flex flex-col md:flex-row items-center justify-between">
         {/* CONCISE TEXT CONTENT */}

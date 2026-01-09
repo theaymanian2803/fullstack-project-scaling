@@ -51,19 +51,19 @@ app.get('/api/config/paypal', (req, res) => {
 })
 
 // 3. STATIC FILES & PRODUCTION LOGIC
-
-// Static folder for uploaded images
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+// Static folder for uploaded images
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')))
 if (process.env.NODE_ENV === 'production') {
-  // Use '..' to go UP from /backend/ to the root, then into /frontend/dist/
+  // Go up from /backend to /root, then into /frontend/dist
+  const frontendPath = path.join(__dirname, '..', 'frontend', 'dist')
 
-  app.use(express.static(path.join(__dirname, 'frontend/dist')))
+  app.use(express.static(frontendPath))
 
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/dist/index.html'))
+    res.sendFile(path.join(frontendPath, 'index.html'))
   })
 }
 

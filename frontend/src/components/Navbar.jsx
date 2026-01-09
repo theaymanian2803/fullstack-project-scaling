@@ -38,9 +38,9 @@ const Navbar = () => {
       <div className="w-full">
         <div className="flex justify-between items-center h-28 px-8 md:px-14">
           <Link to="/" className="flex flex-col items-start group">
-            <span className="text-4xl font-black tracking-tighter text-zinc-900">EX</span>
+            <span className="text-4xl font-black tracking-tighter text-zinc-900">unc</span>
             <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-zinc-400 -mt-1 hidden md:block">
-              EVANOX STORE
+              code stores
             </span>
           </Link>
 

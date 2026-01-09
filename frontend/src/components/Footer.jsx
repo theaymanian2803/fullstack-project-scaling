@@ -25,17 +25,17 @@ function Footer() {
     /* Background matches the new warm-gray Home theme */
     <footer className="bg-[#E5E5E1] border-t border-zinc-300 pt-24 pb-12 overflow-hidden relative">
       {/* Decorative Blur Element for depth */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-zinc-200 rounded-full blur-[150px] opacity-50 -z-0"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-zinc-200 rounded-full blur-[150px] opacity-50 z-0"></div>
 
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 relative z-10">
         <div className="max-w-2xl mx-auto text-center space-y-12">
           {/* Minimalist Text-Based Logo for consistency */}
           <div className="flex flex-col items-center group">
             <span className="text-5xl font-black tracking-tighter text-zinc-900 leading-none">
-              EX
+              unc code
             </span>
             <span className="text-[10px] uppercase tracking-[0.6em] font-bold text-zinc-400 mt-1">
-              EVANOX ARCHIVE
+              ARCHIVE
             </span>
           </div>
 

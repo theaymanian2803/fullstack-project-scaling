@@ -5,9 +5,9 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  envDir: '../', // This tells Vite to look in the root folder for your .env file
+  envDir: '../',
   server: {
-    host: true, // Exposes the server to the network
+    host: true,
     proxy: {
       '/uploads': 'http://localhost:5000',
     },
@@ -15,11 +15,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            // This splits your libraries into separate files instead of one giant bundle
-            return id.toString().split('node_modules/')[1].split('/')[0].toString()
-          }
+        manualChunks: {
+          // Group core React vendor files together
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          // Group Redux and state management
+          'vendor-state': ['@reduxjs/toolkit', 'react-redux'],
+          // Group UI or payment utilities
+          'vendor-utils': ['@paypal/react-paypal-js', 'lucide-react'],
         },
       },
     },

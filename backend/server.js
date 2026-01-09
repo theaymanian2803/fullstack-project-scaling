@@ -12,6 +12,7 @@ import ordersRouter from './routes/orderRoutes.js'
 import uploadRouter from './routes/uploadRoute.js'
 import contactAdmin from './routes/contactRoutes.js'
 import googleAuthRouter from './routes/googleRoute.js'
+import reviewRouter from './routes/reviewsRoutes.js'
 
 // Middleware Imports
 import { notFound, errorHandler } from './middleware/errorHandler.js'
@@ -41,6 +42,7 @@ app.use('/api/users', userRouter)
 app.use('/api/orders', ordersRouter)
 app.use('/api/uploads', uploadRouter)
 app.use('/api/contact', contactAdmin)
+app.use('/api/reviews', reviewRouter)
 app.use('/api/auth/google', googleAuthRouter)
 
 app.get('/api/config/paypal', (req, res) => {

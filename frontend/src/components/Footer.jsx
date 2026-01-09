@@ -22,74 +22,72 @@ const footerNavs = [
 
 function Footer() {
   return (
-    <footer className="bg-black border-t border-zinc-900 pt-16 pb-8 overflow-hidden relative">
-      {/* Subtle Orange Glow Effect in Background */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent shadow-[0_0_20px_rgba(249,115,22,0.3)]"></div>
+    /* Background matches the new warm-gray Home theme */
+    <footer className="bg-[#E5E5E1] border-t border-zinc-300 pt-24 pb-12 overflow-hidden relative">
+      {/* Decorative Blur Element for depth */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-zinc-200 rounded-full blur-[150px] opacity-50 -z-0"></div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
-        <div className="space-y-8 sm:max-w-md sm:mx-auto sm:text-center">
-          {/* Logo with slight glow */}
-          <img
-            src="/images/ex.png"
-            className="w-40 sm:mx-auto drop-shadow-[0_0_8px_rgba(249,115,22,0.2)]"
-            alt="Evanox Logo"
-          />
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 relative z-10">
+        <div className="max-w-2xl mx-auto text-center space-y-12">
+          {/* Minimalist Text-Based Logo for consistency */}
+          <div className="flex flex-col items-center group">
+            <span className="text-5xl font-black tracking-tighter text-zinc-900 leading-none">
+              EX
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.6em] font-bold text-zinc-400 mt-1">
+              EVANOX ARCHIVE
+            </span>
+          </div>
 
-          <p className="text-zinc-500 text-sm uppercase tracking-[0.2em] leading-relaxed italic font-medium">
-            Elevating your digital experience through{' '}
-            <span className="text-orange-500">premium</span> curated collections.
+          <p className="text-zinc-500 text-lg font-serif italic leading-relaxed max-w-lg mx-auto">
+            Elevating your digital experience through <br />
+            <span className="text-zinc-900 not-italic font-sans font-bold uppercase tracking-widest text-[11px]">
+              premium curated collections.
+            </span>
           </p>
 
-          <div className="items-center gap-x-4 space-y-3 sm:flex sm:justify-center sm:space-y-0">
-            {/* Primary Action Button with Orange Glow */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            {/* Primary Action Button - Solid Neo-Brutalist Style */}
             <Link
               to="/store"
-              className="block py-3 px-8 text-center text-black font-black uppercase tracking-widest text-xs bg-white duration-300 hover:bg-orange-500 hover:text-white hover:shadow-[0_0_25px_rgba(249,115,22,0.5)] transform hover:-translate-y-1">
-              Let's get started
+              className="w-full sm:w-auto py-5 px-10 text-center bg-zinc-900 text-white font-bold uppercase tracking-[0.3em] text-[10px] rounded-full hover:scale-105 transition-all shadow-xl shadow-zinc-900/20">
+              Explore Store
             </Link>
 
-            {/* Secondary Action Button */}
+            {/* Secondary Action Button - Outlined */}
             <Link
               to="/login"
-              className="flex items-center justify-center gap-x-2 py-3 px-8 text-white hover:text-orange-500 font-black uppercase tracking-widest text-xs duration-300 border border-zinc-800 hover:border-orange-500 md:inline-flex transform hover:-translate-y-1">
-              Get access
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="w-4 h-4">
-                <path
-                  fillRule="evenodd"
-                  d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              className="w-full sm:w-auto py-5 px-10 text-center border border-zinc-400 text-zinc-900 font-bold uppercase tracking-[0.3em] text-[10px] rounded-full hover:bg-white transition-all">
+              Member Access
             </Link>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-20 py-10 border-t border-zinc-900 items-center justify-between sm:flex">
-          <p className="text-zinc-600 text-[10px] uppercase tracking-[0.2em] font-bold">
-            © 2025 <span className="text-orange-500">Evanox</span> Store Inc. All rights reserved.
-          </p>
+        {/* Bottom Bar Section */}
+        <div className="mt-32 pt-10 border-t border-zinc-300 flex flex-col md:flex-row items-center justify-between gap-8">
+          {/* Copyright with refined spacing */}
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-px bg-zinc-400"></div>
+            <p className="text-zinc-500 text-[9px] uppercase tracking-[0.3em] font-bold">
+              © 2026 <span className="text-zinc-900">unc code</span> / Studio Archive
+            </p>
+          </div>
 
-          <ul className="flex flex-wrap items-center gap-x-8 gap-y-4 mt-6 sm:mt-0">
+          {/* Navigation Links */}
+          <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
             {footerNavs.map((item) => (
               <li key={item.href}>
                 <Link
-                  className="text-zinc-500 hover:text-orange-500 text-[10px] uppercase tracking-[0.2em] font-black duration-300 transition-colors"
+                  className="text-zinc-400 hover:text-zinc-900 text-[9px] uppercase tracking-[0.4em] font-black transition-all duration-300 relative group"
                   to={item.href}>
                   {item.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-zinc-900 transition-all duration-300 group-hover:w-full"></span>
                 </Link>
               </li>
             ))}
           </ul>
         </div>
       </div>
-
-      {/* Visual Accent: Side Glow */}
-      <div className="absolute bottom-0 right-0 w-64 h-64 bg-orange-500/5 blur-[120px] rounded-full"></div>
     </footer>
   )
 }

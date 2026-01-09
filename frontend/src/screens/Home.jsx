@@ -1,33 +1,26 @@
 import React from 'react'
-import Hero from './../components/Hero'
 import Grid from './../components/Grid'
 import { useGetProductsForHomeQuery } from './../slices/productSlice'
 
 function Home() {
   const { data: products, isLoading, error } = useGetProductsForHomeQuery()
 
-  // High-end Loading State
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-zinc-800 border-t-orange-500 rounded-full animate-spin"></div>
-          <p className="text-[10px] uppercase tracking-[0.4em] text-zinc-500 font-black animate-pulse">
-            Loading Collection
-          </p>
-        </div>
+      <div className="min-h-screen bg-[#F9F9F7] flex items-center justify-center font-serif italic text-zinc-400">
+        Loading Collection...
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-10">
-        <div className="text-center border border-red-500/20 bg-red-500/5 p-10">
-          <p className="text-red-500 uppercase tracking-widest text-xs font-bold">
+      <div className="min-h-screen bg-white flex items-center justify-center p-10">
+        <div className="text-center">
+          <p className="text-red-500 uppercase tracking-[0.3em] text-[12px] font-bold">
             Error Accessing Archive
           </p>
-          <p className="text-zinc-500 text-[10px] mt-2">{error.message}</p>
+          <p className="text-zinc-400 text-[12px] mt-2 font-mono">{error.message}</p>
         </div>
       </div>
     )
@@ -37,29 +30,74 @@ function Home() {
   const legendsCat = products?.filter((item) => item.category?.toLowerCase() === 'legends')
 
   return (
-    <div className="min-h-screen bg-black text-white antialiased pb-20">
-      {/* Hero Section Container */}
-      <div className="relative pt-4 md:pt-10">
-        {/* Subtle background glow behind Hero */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-orange-500/10 blur-[120px] rounded-full -z-10"></div>
+    <div className="min-h-screen bg-[#F9F9F7] text-zinc-900 selection:bg-zinc-200">
+      {/* 1. FIXED: SPACER TO PUSH HERO DOWN BELOW NAVBAR */}
+      <div className="h-32 md:h-44 w-full" />
 
-        <div className="bg-white rounded-none md:rounded-[60px] w-full md:w-[92%] lg:w-[85%] mx-auto overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-          <Hero />
+      {/* Editorial Banner Section */}
+      <section className="relative w-full px-4 md:px-10 pt-10">
+        <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* Text Content Column */}
+          <div className="lg:col-span-4 z-10 space-y-10 py-12">
+            <span className="text-[12px] uppercase tracking-[0.5em] font-black text-zinc-400 block">
+              New Arrival / 2026
+            </span>
+
+            {/* 2. ENLARGED TEXT: text-7xl to 9xl */}
+            <h1 className="text-7xl md:text-8xl lg:text-9xl font-serif leading-[0.85] tracking-tighter text-zinc-800">
+              Fresh <br /> <span className="italic ml-6">Spring</span> <br /> Hues
+            </h1>
+
+            <p className="max-w-md text-zinc-500 text-lg leading-relaxed font-light">
+              Verbena. Blackberry. Prune. No, it’s not a farmers market list. These are the new
+              colors livening up your new year active goals. Designed for movement, crafted for the
+              aesthetic eye.
+            </p>
+
+            <div className="pt-6">
+              {/* 3. ENLARGED BUTTON */}
+              <button className="px-12 py-5 border-2 border-zinc-900 rounded-full text-xs font-black uppercase tracking-[0.2em] hover:bg-zinc-900 hover:text-white transition-all duration-500 shadow-lg">
+                Shop the Collection
+              </button>
+            </div>
+          </div>
+
+          {/* Multi-Image Display Column */}
+          <div className="lg:col-span-8 grid grid-cols-2 gap-6 h-[500px] md:h-[800px]">
+            <div className="relative overflow-hidden rounded-[3rem] group shadow-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80"
+                alt="Lifestyle"
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+              />
+            </div>
+            <div className="relative overflow-hidden rounded-[3rem] mt-20 group shadow-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80"
+                alt="Fashion detail"
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+              />
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Content Sections */}
-      <div className="mt-20 px-4 md:px-10 lg:px-20 space-y-24">
+      {/* Main Content Sections */}
+      <div className="max-w-[1440px] mx-auto mt-48 px-6 md:px-12 space-y-56 pb-32">
         {/* Legends Section */}
         <section>
-          <div className="flex flex-col items-center mb-12">
-            <span className="text-orange-500 text-[10px] uppercase tracking-[0.5em] font-black mb-3">
-              The Archive
-            </span>
-            <h1 className="text-center font-black text-4xl md:text-6xl tracking-tighter uppercase italic">
-              Legends <span className="text-zinc-800 not-italic">Never</span> Die
-            </h1>
-            <div className="h-1 w-20 bg-orange-500 mt-6"></div>
+          <div className="flex items-center justify-between mb-24">
+            <div className="flex flex-col border-l-4 border-zinc-900 pl-10">
+              <span className="text-zinc-400 text-xs uppercase tracking-[0.4em] font-black mb-4">
+                Evanox Archive
+              </span>
+              <h2 className="font-serif italic text-6xl md:text-8xl text-zinc-800 tracking-tight">
+                Legends
+              </h2>
+            </div>
+            <p className="hidden md:block max-w-[250px] text-xs text-zinc-400 leading-relaxed font-mono font-bold">
+              // REFINED SELECTION FROM THE 2026 VAULT.
+            </p>
           </div>
 
           <div className="relative">
@@ -68,26 +106,25 @@ function Home() {
         </section>
 
         {/* Basketball Section */}
-        <section>
-          <div className="flex flex-col items-center mb-12">
-            <span className="text-orange-500 text-[10px] uppercase tracking-[0.5em] font-black mb-3">
-              Pro Performance
-            </span>
-            <h1 className="text-center font-black text-4xl md:text-6xl tracking-tighter uppercase">
-              Basketball <span className="text-zinc-800">Lab</span> Legends
-            </h1>
-            <div className="h-1 w-20 bg-orange-500 mt-6"></div>
+        <section className="pt-24 border-t-2 border-zinc-100">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-8">
+            <div className="space-y-4">
+              <span className="text-zinc-400 text-xs uppercase tracking-[0.4em] font-black">
+                Performance Lab
+              </span>
+              <h2 className="font-serif text-6xl md:text-8xl text-zinc-800 tracking-tight leading-none">
+                Basketball <span className="italic font-light">Laboratory</span>
+              </h2>
+            </div>
+            <button className="text-xs font-black uppercase tracking-[0.3em] border-b-4 border-zinc-900 pb-3 hover:text-zinc-400 transition-all">
+              View the Series
+            </button>
           </div>
 
           <div className="relative">
             <Grid products={BasketBall} />
           </div>
         </section>
-      </div>
-
-      {/* Bottom Visual Accent */}
-      <div className="mt-20 flex justify-center">
-        <div className="w-px h-24 bg-gradient-to-b from-orange-500 to-transparent"></div>
       </div>
     </div>
   )

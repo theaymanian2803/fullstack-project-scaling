@@ -1,184 +1,145 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { SquarePen, Trash, Plus } from 'lucide-react'
+import React, { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { SquarePen, Trash, Plus, RefreshCw, Database } from 'lucide-react'
 import { toast } from 'react-toastify'
 import {
-  useGetProductsQuery,
   useCreateProductMutation,
   useDeleteProductMutation,
   useGetProductsForHomeQuery,
 } from '../../slices/productSlice'
 
 function ProductListAdmin() {
+  const navigate = useNavigate()
+
   // 1. Hook Definitions
-  const { data: products, isLoading, error, refetch } = useGetProductsForHomeQuery()
+  const { data: products, isLoading, error, refetch, isFetching } = useGetProductsForHomeQuery()
   const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation()
   const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation()
 
   // 2. Action Handlers
-  const deleteHandler = (id) => async (e) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+  const deleteHandler = (id) => async () => {
+    if (window.confirm('PERMANENT DELETION: Are you sure?')) {
       try {
         await deleteProduct(id).unwrap()
         refetch()
-        toast.success('Product deleted successfully')
-      } catch (error) {
-        toast.error(error?.data?.message || error.message || 'Failed to delete product')
+        toast.success('Asset Purged')
+      } catch (err) {
+        toast.error(err?.data?.message || 'Deletion Failed')
       }
     }
   }
 
   const createProductHandler = async () => {
     try {
-      await createProduct().unwrap()
+      const result = await createProduct().unwrap()
       refetch()
-      toast.success('New product initialized')
+      toast.success('Sample Entry Created')
+      navigate(`/admin/product/${result._id}/edit`)
     } catch (err) {
-      toast.error(err?.data?.message || err.message || 'Failed to create product')
+      toast.error(err?.data?.message || 'Creation Failed')
     }
   }
 
-  // 3. Conditional Loading/Error States
-  if (isLoading) {
+  // 3. Conditional Rendering
+  if (isLoading)
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white font-black animate-pulse uppercase tracking-tighter text-2xl italic">
-          Loading Assets...
-        </div>
+      <div className="min-h-screen bg-[#E5E5E1] flex items-center justify-center font-serif italic text-3xl text-zinc-400">
+        Syncing Archive...
       </div>
     )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center p-6">
-        <div className="bg-red-900/20 border border-red-500 text-red-500 p-4 rounded-sm font-bold uppercase tracking-tight text-center">
-          Error: {error?.data?.message || error.message}
-        </div>
-      </div>
-    )
-  }
 
   return (
-    <div className="bg-black min-h-screen text-white pb-20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {loadingDelete && 'Deleting...'}
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center py-8 gap-4">
+    <div className="bg-[#E5E5E1] min-h-screen text-zinc-900 font-sans pb-32">
+      <div className="h-32 md:h-44" /> {/* Header Spacer */}
+      <div className="max-w-[1600px] mx-auto px-6 md:px-12">
+        {/* HEADER SECTION - Matches image_ca18d6.jpg styling */}
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end border-l-[12px] border-zinc-900 pl-10 mb-20 gap-8">
           <div>
-            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none italic">
-              Product <span className="text-orange-600">Inventory</span>
+            <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85] mb-4">
+              Asset <br />
+              <span className="font-serif italic text-zinc-400 normal-case tracking-tight">
+                Inventory
+              </span>
             </h1>
-            <p className="text-zinc-500 text-xs uppercase tracking-widest mt-2 font-bold">
-              Management / Central Command
+            <p className="text-zinc-500 uppercase tracking-[0.5em] text-xs font-black">
+              Admin Command / 2026 Archive
             </p>
           </div>
-          <button
-            onClick={createProductHandler}
-            disabled={loadingCreate}
-            className="w-full md:w-auto flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-500 text-white font-black uppercase px-6 py-3 tracking-tighter transition-all duration-200 rounded-sm disabled:opacity-50">
-            <Plus size={20} />
-            {loadingCreate ? 'Processing...' : 'Create Product'}
-          </button>
+
+          <div className="flex flex-wrap gap-4 w-full xl:w-auto">
+            {/* SYNC/REFRESH BUTTON */}
+            <button
+              onClick={() => refetch()}
+              className="flex-1 xl:flex-none flex items-center justify-center gap-3 bg-white border border-zinc-200 text-zinc-900 font-black uppercase px-8 py-5 text-[10px] tracking-widest hover:bg-zinc-50 transition-all rounded-full shadow-sm">
+              <RefreshCw size={16} className={isFetching ? 'animate-spin' : ''} />
+              Sync Database
+            </button>
+
+            {/* CREATE PRODUCT BUTTON */}
+            <button
+              onClick={createProductHandler}
+              disabled={loadingCreate}
+              className="flex-1 xl:flex-none flex items-center justify-center gap-3 bg-zinc-900 text-white font-black uppercase px-8 py-5 text-[10px] tracking-widest hover:bg-zinc-700 transition-all rounded-full shadow-xl disabled:opacity-50">
+              <Plus size={18} />
+              {loadingCreate ? 'Initializing...' : 'Add Entry'}
+            </button>
+          </div>
         </div>
 
-        {/* --- MOBILE VIEW (Visible only on small screens) --- */}
-        <div className="block md:hidden space-y-4">
-          {products?.map((product) => (
-            <div key={product._id} className="bg-zinc-900/50 border border-zinc-800 p-5 rounded-sm">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-black uppercase tracking-tight leading-tight">
-                    {product.name}
-                  </h3>
-                  <p className="text-blue-400 font-mono text-[10px] mt-1">{product._id}</p>
-                </div>
-                <p className="text-orange-500 font-black text-xl">${product.price}</p>
-              </div>
+        {/* ERROR STATE VIEW */}
+        {error && (
+          <div className="bg-white p-10 rounded-4xl border border-red-100 text-center mb-10 shadow-lg">
+            <p className="text-red-500 font-black uppercase text-[10px] tracking-widest mb-2">
+              Connection Error
+            </p>
+            <p className="text-zinc-400 font-mono text-xs">
+              {error?.data?.message || 'Check your MongoDB Atlas whitelist/connection string.'}
+            </p>
+          </div>
+        )}
 
-              <div className="grid grid-cols-2 gap-4 text-xs uppercase font-bold tracking-widest text-zinc-500 mb-6">
-                <div>
-                  <span className="block text-[10px] text-zinc-600 mb-1">Category</span>
-                  <span className="text-white">{product.category}</span>
-                </div>
-                <div>
-                  <span className="block text-[10px] text-zinc-600 mb-1">Brand</span>
-                  <span className="text-white">{product.brand}</span>
-                </div>
-              </div>
-
-              <div className="flex gap-2 border-t border-zinc-800 pt-4">
-                {/* Fixed SquarePen Link */}
-                <Link
-                  to={`/admin/product/${product._id}/edit`}
-                  className="flex-1 bg-zinc-800 hover:bg-zinc-700 p-3 flex justify-center transition-colors rounded-sm">
-                  <SquarePen size={18} />
-                </Link>
-
-                {/* Fixed Edit Details Link */}
-                <Link
-                  to={`/admin/product/${product._id}/edit`}
-                  className="flex-2 bg-zinc-100 text-black text-center font-black py-3 text-xs tracking-widest hover:bg-white transition-colors uppercase rounded-sm">
-                  Edit Details
-                </Link>
-
-                {/* Trash Button */}
-                <button
-                  onClick={deleteHandler(product._id)}
-                  className="flex-1 bg-red-900/20 text-red-500 border border-red-900/50 flex justify-center items-center hover:bg-red-500 hover:text-white transition-all rounded-sm">
-                  <Trash size={18} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* --- DESKTOP VIEW (Visible only on medium screens and up) --- */}
-        <div className="hidden md:block overflow-hidden bg-zinc-900/30 border border-zinc-800 rounded-sm">
+        {/* DESKTOP TABLE - Matches Archive Verified styling in image_ca2b20.png */}
+        <div className="hidden md:block overflow-hidden bg-white/60 backdrop-blur-xl border border-white rounded-[3rem] shadow-2xl">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-zinc-800 text-zinc-300 text-[10px] uppercase tracking-[0.2em] font-black">
-                <th className="py-5 px-6">ID</th>
-                <th className="py-5 px-6">Product Name</th>
-                <th className="py-5 px-6">Price</th>
-                <th className="py-5 px-6">Category</th>
-                <th className="py-5 px-6 text-center">Actions</th>
+              <tr className="border-b border-zinc-100 text-zinc-400 text-[10px] uppercase tracking-[0.3em] font-black">
+                <th className="py-8 px-10">Asset_UID</th>
+                <th className="py-8 px-10">Identity</th>
+                <th className="py-8 px-10">Pricing</th>
+                <th className="py-8 px-10">Status</th>
+                <th className="py-8 px-10 text-right">Edit</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody className="divide-y divide-zinc-50">
               {products?.map((product) => (
-                <tr key={product._id} className="hover:bg-zinc-800/30 transition-colors group">
-                  <td className="py-5 px-6 font-mono text-[11px] text-zinc-500 group-hover:text-blue-400 transition-colors">
-                    {product._id.substring(0, 12)}...
+                <tr key={product._id} className="hover:bg-white transition-colors group">
+                  <td className="py-8 px-10 font-mono text-[10px] text-zinc-400 group-hover:text-zinc-900">
+                    {product._id}
                   </td>
-                  <td className="py-5 px-6 text-sm font-bold uppercase tracking-tight">
-                    {product.name}
+                  <td className="py-8 px-10">
+                    <p className="text-lg font-black uppercase tracking-tight text-zinc-900">
+                      {product.name}
+                    </p>
+                    <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-bold">
+                      {product.brand}
+                    </p>
                   </td>
-                  <td className="py-5 px-6 text-sm font-black text-orange-500">${product.price}</td>
-                  <td className="py-5 px-6 text-xs font-bold text-zinc-400 italic">
-                    {product.category}
+                  <td className="py-8 px-10 font-black text-zinc-900">MAD {product.price}</td>
+                  <td className="py-8 px-10">
+                    <span className="text-[9px] font-black uppercase tracking-widest bg-zinc-100 px-3 py-1.5 rounded-full text-zinc-500 italic">
+                      {product.category}
+                    </span>
                   </td>
-                  <td className="py-5 px-6">
-                    <div className="flex justify-center items-center gap-3">
-                      {/* FIX 1: Edit Icon (Link Only) */}
+                  <td className="py-8 px-10 text-right">
+                    <div className="flex justify-end gap-3">
                       <Link
                         to={`/admin/product/${product._id}/edit`}
-                        className="text-zinc-500 hover:text-white transition-colors">
-                        <SquarePen size={19} />
+                        className="bg-zinc-900 text-white p-4 rounded-full hover:bg-zinc-700 transition-all shadow-lg">
+                        <SquarePen size={18} />
                       </Link>
-
-                      {/* FIX 2: Details Link (Link Only - Removed onClick) */}
-                      <Link
-                        to={`/admin/product/${product._id}/edit`}
-                        className="bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-black px-4 py-2 tracking-tighter transition-all rounded-sm">
-                        DETAILS
-                      </Link>
-
-                      {/* FIX 3: Delete Button (Action Only) */}
                       <button
-                        type="button"
                         onClick={deleteHandler(product._id)}
-                        className="text-zinc-500 hover:text-red-500 transition-colors">
+                        className="bg-white border border-zinc-100 text-red-500 p-4 rounded-full hover:bg-red-50 transition-all">
                         <Trash size={18} />
                       </button>
                     </div>

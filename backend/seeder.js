@@ -1,6 +1,5 @@
 import mongoose from 'mongoose'
 import User from './models/userModel.js'
-import Order from './models/orderModel.js'
 import Product from './models/productModel.js'
 import products from './data/data.js'
 import usersSample from './usersData.js'
@@ -11,7 +10,6 @@ conncectDB()
 
 const importData = async () => {
   try {
-    await Order.deleteMany()
     await Product.deleteMany()
     await User.deleteMany()
     const createdUsers = await User.insertMany(usersSample)
@@ -32,7 +30,6 @@ const importData = async () => {
 
 const destroyData = async () => {
   try {
-    await Order.deleteMany()
     await Product.deleteMany()
     await User.deleteMany()
     console.log('Data destroyed successfully')

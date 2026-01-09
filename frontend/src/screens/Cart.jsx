@@ -9,7 +9,6 @@ const addDecimals = (num) => {
 }
 
 export default function CartScreen() {
-  const [qty, setQty] = useState(1)
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
@@ -22,172 +21,180 @@ export default function CartScreen() {
   const removeFromCartHandler = (id) => {
     dispatch(removeItem(id))
   }
+
   // Calculations
   const itemsPrice = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0)
-  const shippingThreshold = 100 // Example threshold
+  const shippingThreshold = 1000 // Adjusted for MAD
   const remainingForFreeShipping = Math.max(0, shippingThreshold - itemsPrice)
   const progressPercent = Math.min(100, (itemsPrice / shippingThreshold) * 100)
+
   const checkoutHandler = () => {
     navigate('/login?redirect=/shipping')
   }
 
   return (
-    <div className="min-h-screen bg-black text-gray-100 font-sans selection:bg-blue-600 selection:text-white">
-      <div className="max-w-[1600px] mx-auto px-6 py-12">
-        <h1 className="text-4xl font-bold mb-10 tracking-tight">Shopping Cart</h1>
+    <div className="min-h-screen bg-[#E5E5E1] text-zinc-900 font-sans selection:bg-zinc-200">
+      {/* Spacer for Fixed Navbar */}
+      <div className="h-32 md:h-40" />
 
-        <div className="flex flex-col xl:flex-row gap-12">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-12 pb-24">
+        {/* Header Section */}
+        <div className="mb-16 border-l-8 border-zinc-900 pl-8">
+          <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-4">
+            Shopping <br />
+            <span className="font-serif italic text-zinc-400 normal-case tracking-tight">Cart</span>
+          </h1>
+          <p className="text-zinc-500 uppercase tracking-[0.4em] text-sm font-black">
+            {cartItems.length} Items Locked in Archive
+          </p>
+        </div>
+
+        <div className="flex flex-col xl:flex-row gap-16">
           {/* LEFT COLUMN - CART ITEMS */}
           <div className="flex-1">
             {/* Table Header */}
-            <div className="hidden md:grid grid-cols-12 gap-6 border-b border-zinc-800 pb-4 mb-6 text-zinc-500 text-lg font-medium tracking-wide uppercase">
-              <div className="col-span-6">Product</div>
+            <div className="hidden md:grid grid-cols-12 gap-6 border-b-2 border-zinc-200 pb-6 mb-10 text-zinc-400 text-xs font-black tracking-[0.2em] uppercase">
+              <div className="col-span-6">Product Details</div>
               <div className="col-span-3 text-center">Quantity</div>
-              <div className="col-span-3 text-right">Total</div>
+              <div className="col-span-3 text-right">Unit Total</div>
             </div>
 
-            <div className="space-y-8">
-              {cartItems.map((item) => (
-                <div
-                  key={item._id}
-                  className="group flex flex-col md:grid md:grid-cols-12 gap-6 items-center border-b border-zinc-900 pb-8 last:border-0">
-                  {/* PRODUCT INFO */}
-                  <div className="col-span-6 flex gap-6 w-full">
-                    <div className="w-34 h-34 shrink-0 bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800">
-                      <img
-                        src={item.images[1]}
-                        alt={item.name}
-                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                      />
-                    </div>
-                    <div className="flex flex-col justify-between py-1">
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-2">{item.name}</h3>
-
-                        <div className="flex items-center gap-3 mt-2">
-                          <span className="text-xl font-semibold text-white">{item.price} MAD</span>
-                          {item.originalPrice && (
-                            <span className="text-lg text-zinc-600 line-through">
-                              ${item.originalPrice}
-                            </span>
-                          )}
+            <div className="space-y-12">
+              {cartItems.length === 0 ? (
+                <div className="bg-white/50 backdrop-blur-sm rounded-[3rem] p-20 text-center border border-white">
+                  <p className="font-serif italic text-3xl text-zinc-400 mb-8">
+                    Your vault is currently empty.
+                  </p>
+                  <Link
+                    to="/"
+                    className="inline-block px-12 py-5 bg-zinc-900 text-white rounded-full font-black uppercase tracking-widest text-xs">
+                    Explore Collection
+                  </Link>
+                </div>
+              ) : (
+                cartItems.map((item) => (
+                  <div
+                    key={item._id}
+                    className="group flex flex-col md:grid md:grid-cols-12 gap-8 items-center border-b border-zinc-200 pb-12 last:border-0">
+                    {/* PRODUCT INFO */}
+                    <div className="col-span-6 flex gap-8 w-full">
+                      <div className="w-40 h-40 shrink-0 bg-white rounded-[2rem] overflow-hidden border border-white shadow-sm group-hover:shadow-xl transition-all duration-700">
+                        <img
+                          src={item.images && item.images[1] ? item.images[1] : item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                        />
+                      </div>
+                      <div className="flex flex-col justify-center">
+                        <h3 className="text-2xl font-black text-zinc-900 uppercase tracking-tighter mb-2 group-hover:text-zinc-500 transition-colors">
+                          {item.name}
+                        </h3>
+                        <div className="flex items-center gap-4">
+                          <span className="text-xl font-bold text-zinc-900">{item.price} MAD</span>
+                        </div>
+                        {/* Status Tag */}
+                        <div className="flex items-center gap-2 text-zinc-400 text-[10px] font-black uppercase tracking-widest mt-4 bg-zinc-100 w-fit px-3 py-1 rounded-full">
+                          <Tag size={12} />
+                          <span>In Stock / Ready to Ship</span>
                         </div>
                       </div>
-
-                      {/* Discount Badge */}
-                      <div className="flex items-center gap-2 text-orange-400 text-base mt-2">
-                        <Tag size={18} />
-                        <span>Product Discount 20%</span>
-                      </div>
                     </div>
-                  </div>
 
-                  {/* QUANTITY CONTROL */}
-                  <div className="col-span-3 flex justify-center w-full">
-                    <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-lg p-1 w-[100px]">
-                      <span className="w-16 text-center text-2xl font-bold text-white tabular-nums">
+                    {/* QUANTITY CONTROL */}
+                    <div className="col-span-3 flex justify-center w-full">
+                      <div className="relative inline-block w-24">
                         <select
-                          className="p-2 border-orange-500 rounded-2xl"
+                          className="w-full appearance-none bg-white border-2 border-zinc-100 rounded-2xl py-4 px-6 text-center font-black text-zinc-900 focus:outline-none focus:border-zinc-900 transition-colors cursor-pointer"
                           value={item.qty}
                           onChange={(e) => addToCartHandler(item, Number(e.target.value))}>
                           {[...Array(item.countInStock).keys()].map((x) => (
-                            <option className="text-black bg-amber-100" key={x + 1} value={x + 1}>
+                            <option key={x + 1} value={x + 1}>
                               {x + 1}
                             </option>
                           ))}
                         </select>
-                      </span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* TOTAL & ACTIONS */}
-                  <div className="col-span-3 text-right flex flex-col justify-between h-full w-full">
-                    <div className="flex flex-col items-end">
-                      {item.originalPrice && (
-                        <span className="text-lg text-zinc-600 line-through block mb-1">
-                          {addDecimals(item.originalPrice * item.qty)} MAD
-                        </span>
-                      )}
-                      <span className="text-3xl font-bold text-white">
+                    {/* TOTAL & ACTIONS */}
+                    <div className="col-span-3 text-right flex flex-col justify-center h-full w-full">
+                      <span className="text-3xl font-black text-zinc-900 tracking-tighter">
                         {addDecimals(item.price * item.qty)} MAD
                       </span>
+                      <button
+                        onClick={() => removeFromCartHandler(item._id)}
+                        className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-zinc-900 transition-colors mt-4">
+                        Remove from Archive —
+                      </button>
                     </div>
-
-                    <button
-                      onClick={() => removeFromCartHandler(item._id)}
-                      className="text-lg text-zinc-500 hover:text-red-400 underline decoration-zinc-800 hover:decoration-red-400 underline-offset-4 transition-all mt-4 md:mt-0 self-end z-40">
-                      Remove
-                    </button>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
-            <div className="mt-12">
+            <div className="mt-20">
               <Link
                 to="/"
-                className="text-blue-500 text-xl font-medium hover:text-blue-400 flex items-center gap-2 transition-colors">
-                <ArrowRight className="rotate-180" size={24} />
-                <span>Continue Shopping</span>
+                className="group inline-flex items-center gap-4 text-zinc-900 font-black uppercase tracking-[0.3em] text-xs">
+                <div className="w-12 h-12 rounded-full border border-zinc-900 flex items-center justify-center group-hover:bg-zinc-900 group-hover:text-white transition-all">
+                  <ArrowRight className="rotate-180" size={18} />
+                </div>
+                <span>Back to Store</span>
               </Link>
             </div>
           </div>
 
           {/* RIGHT COLUMN - ORDER SUMMARY */}
-          <div className="w-full xl:w-[480px] shrink-0">
-            <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8 sticky top-8">
-              {/* Free Shipping Progress */}
-              <div className="mb-10">
-                <div className="flex justify-between items-end mb-3">
-                  <span className="text-lg text-zinc-300">
-                    {remainingForFreeShipping > 0 ? (
-                      `Spend ${addDecimals(remainingForFreeShipping)} MAD more for FREE shipping`
-                    ) : (
-                      <span className="text-emerald-400 font-bold flex items-center gap-2">
-                        <ShieldCheck size={20} /> You've unlocked FREE shipping!
-                      </span>
-                    )}
+          <div className="w-full xl:w-[500px] shrink-0">
+            <div className="bg-white/40 backdrop-blur-md border border-white rounded-[3rem] p-10 md:p-14 sticky top-40 shadow-xl shadow-zinc-200/50">
+              {/* Shipping Logic */}
+              <div className="mb-12">
+                <div className="flex justify-between items-end mb-4">
+                  <span className="text-[11px] font-black uppercase tracking-widest text-zinc-400">
+                    Logistics
                   </span>
                 </div>
-                <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="text-sm font-bold text-zinc-800 mb-4 leading-relaxed">
+                  {remainingForFreeShipping > 0 ? (
+                    `Spend ${addDecimals(
+                      remainingForFreeShipping
+                    )} MAD more for COMPLIMENTARY shipping`
+                  ) : (
+                    <span className="text-zinc-900 flex items-center gap-2">
+                      <ShieldCheck size={18} /> SHIPPING UNLOCKED
+                    </span>
+                  )}
+                </div>
+                <div className="h-2 bg-zinc-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"
+                    className="h-full bg-zinc-900 transition-all duration-1000 ease-out"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
               </div>
 
-              {/* Order Instructions (Accordion Placeholder) */}
-              <div className="border-t border-b border-zinc-800 py-6 mb-8">
-                <div className="flex justify-between items-center cursor-pointer group">
-                  <span className="text-xl font-medium text-zinc-300 group-hover:text-white transition-colors">
-                    Order instruction
+              {/* Estimate */}
+              <div className="mb-12 pt-10 border-t border-zinc-100">
+                <span className="text-[11px] font-black uppercase tracking-widest text-zinc-400 block mb-4">
+                  Subtotal
+                </span>
+                <div className="flex justify-between items-baseline">
+                  <span className="text-5xl md:text-6xl font-black text-zinc-900 tracking-tighter">
+                    {addDecimals(itemsPrice)}
                   </span>
-                  <Plus
-                    size={24}
-                    className="text-zinc-500 group-hover:text-white transition-colors"
-                  />
+                  <span className="text-xl font-black text-zinc-900 ml-2">MAD</span>
                 </div>
-              </div>
-
-              {/* Totals */}
-              <div className="mb-8">
-                <div className="flex justify-between items-end mb-2">
-                  <span className="text-xl text-zinc-400">Estimate total</span>
-                  <span className="text-5xl font-bold text-white tracking-tight">
-                    {addDecimals(itemsPrice)} MAD
-                  </span>
-                </div>
-                <p className="text-zinc-500 text-base mt-2">
-                  Tax included and shipping calculated at checkout
+                <p className="text-zinc-400 text-xs font-medium mt-6 leading-relaxed">
+                  VAT included. Logistics and handling calculated based on destination at next step.
                 </p>
               </div>
 
               {/* Checkout Button */}
               <button
+                disabled={cartItems.length === 0}
                 onClick={checkoutHandler}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white text-xl font-bold py-5 rounded-xl transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-blue-900/20">
-                Check out
+                className="w-full bg-zinc-900 hover:bg-zinc-700 text-white text-xs font-black uppercase tracking-[0.4em] py-7 rounded-full transition-all hover:shadow-2xl hover:-translate-y-1 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                Proceed to Checkout
               </button>
             </div>
           </div>

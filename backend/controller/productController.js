@@ -21,15 +21,22 @@ const getProducts = asyncHandler(async (req, res) => {
   return res.json({ products, page, pages: Math.ceil(count / pagesize) })
 })
 const getHomeProducts = asyncHandler(async (req, res) => {
+  // We do NOT filter here. The Admin needs to see everything to approve it.
   const products = await Product.find({})
-  return res.json(products)
+  res.json(products)
 })
 
+// @desc    Fetch single product (Public View)
 const getProductById = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id)
+
   if (product) {
-    return res.json(product)
+    const productObj = product.toObject()
+    // Only show approved reviews on the product page
+    productObj.reviews = productObj.reviews.filter((review) => review.isApproved === true)
+    return res.json(productObj)
   }
+
   return res.status(404).json({ message: 'Product not found' })
 })
 
@@ -82,6 +89,8 @@ const deleteProduct = asyncHandler(async (req, res) => {
     throw new Error('Product not found')
   }
 })
+// @desc    Create new review
+// @route   POST /api/products/:id/reviews
 const createProductReview = asyncHandler(async (req, res) => {
   const { rating, comment } = req.body
   const product = await Product.findById(req.params.id)
@@ -90,30 +99,31 @@ const createProductReview = asyncHandler(async (req, res) => {
     const alreadyReviewed = product.reviews.find(
       (review) => review.user.toString() === req.user._id.toString()
     )
+
     if (alreadyReviewed) {
       res.status(400)
       throw new Error('Product already reviewed')
     }
+
     const review = {
       name: req.user.name,
       rating: Number(rating),
       comment,
       user: req.user._id,
+      isApproved: false, // Starts as false
     }
+
     product.reviews.push(review)
-    product.numReviews = product.reviews.length
-    product.rating =
-      product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length
+    // We do NOT update product.rating or numReviews here yet.
+    // They only update when 'isApproved' becomes true.
 
     await product.save()
-
-    res.status(201).json({ message: 'Review added' })
+    res.status(201).json({ message: 'Review submitted for moderation' })
   } else {
     res.status(404)
-    throw new Error('review not found')
+    throw new Error('Product not found')
   }
 })
-
 export {
   getProducts,
   getProductById,

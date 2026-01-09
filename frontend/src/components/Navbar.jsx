@@ -1,16 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import {
-  User,
-  ShoppingBag,
-  Menu,
-  X,
-  ChevronDown,
-  Settings,
-  LogOut,
-  Package,
-  UserCircle,
-} from 'lucide-react'
+import { User, ShoppingBag, Menu, X, ChevronDown, LogOut, Package, UserCircle } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useLogoutMutation } from '../slices/userApiSlice'
 import { logout } from '../slices/authSlice'
@@ -41,209 +31,168 @@ const Navbar = () => {
   const cartCount = cartItems.reduce((acc, item) => acc + Number(item.qty), 0)
 
   return (
-    <nav className="sticky top-0 w-full bg-black text-white z-50 border-b border-white/10 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Logo Section */}
+    /* REMOVED: 'fixed', 'top-0', 'left-0', 'px-4', 'pt-6' */
+    /* ADDED: 'relative' and 'w-full' to flow with the document */
+    <nav className="relative w-full z-[100] bg-white/95 backdrop-blur-xl border-b border-zinc-100 shadow-sm">
+      {/* REMOVED: max-width and rounded corners to make it expand fully across */}
+      <div className="w-full">
+        <div className="flex justify-between items-center h-28 px-8 md:px-14">
           <Link to="/" className="flex flex-col items-start group">
-            <span className="text-3xl font-black tracking-tighter group-hover:text-gray-300 transition-colors">
-              EX
-            </span>
-            <span className="text-[10px] uppercase tracking-[0.3em] font-light -mt-1 hidden md:block">
+            <span className="text-4xl font-black tracking-tighter text-zinc-900">EX</span>
+            <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-zinc-400 -mt-1 hidden md:block">
               EVANOX STORE
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <ul className="hidden md:flex items-center space-x-10 text-sm font-semibold tracking-widest">
+          <ul className="hidden md:flex items-center space-x-12 text-sm font-black tracking-[0.15em] text-zinc-800">
             <li>
-              <Link to="/" className="hover:text-orange-400 transition-colors">
+              <Link to="/" className="hover:text-zinc-500 transition-colors">
                 HOME
               </Link>
             </li>
             <li>
-              <Link to="/store" className="hover:text-orange-400 transition-colors">
+              <Link to="/store" className="hover:text-zinc-500 transition-colors">
                 STORE
               </Link>
             </li>
             <li>
-              <Link to="/services" className="hover:text-orange-400 transition-colors">
+              <Link to="/services" className="hover:text-zinc-500 transition-colors">
                 SERVICES
               </Link>
             </li>
             <li>
-              <Link to="/about" className="hover:text-orange-400 transition-colors">
+              <Link to="/about" className="hover:text-zinc-500 transition-colors">
                 ABOUT US
               </Link>
             </li>
           </ul>
 
-          {/* Action Icons */}
-          <div className="flex items-center space-x-5">
-            {/* Account Dropdown */}
+          <div className="flex items-center space-x-6">
             <div
-              className="relative"
+              className="relative flex justify-center"
               onMouseEnter={() => setIsProfileOpen(true)}
               onMouseLeave={() => setIsProfileOpen(false)}>
               {userInfo ? (
-                <button className="flex items-center space-x-2 py-2 focus:outline-none group">
-                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border border-white/20 group-hover:border-orange-400 transition-all">
-                    <User className="w-4 h-4" />
+                <button className="flex items-center space-x-3 py-4 focus:outline-none group">
+                  <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center text-white transition-all shadow-sm">
+                    <User className="w-5 h-5" />
                   </div>
-                  <span className="hidden lg:block text-sm font-medium uppercase tracking-wider">
-                    {userInfo.name.split(' ')[0]}
-                  </span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-300 ${
+                    className={`w-4 h-4 text-zinc-400 transition-transform ${
                       isProfileOpen ? 'rotate-180' : ''
                     }`}
                   />
                 </button>
               ) : (
-                <Link to="/login" className="p-2 hover:text-orange-400 transition-colors">
+                <Link to="/login" className="text-zinc-900 p-2">
                   <User className="w-6 h-6" />
                 </Link>
               )}
 
-              {/* Dropdown Menu */}
               {userInfo && isProfileOpen && (
-                <div className="absolute right-0 w-56 mt-0 pt-2 bg-black border border-white/10 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="py-2">
-                    <p className="px-4 py-2 text-[10px] uppercase tracking-widest text-gray-500 border-b border-white/5 mb-2">
-                      Account
+                <div className="absolute top-full right-0 md:left-1/2 md:-translate-x-1/2 w-72 pt-2 bg-white border border-zinc-100 shadow-2xl rounded-2xl overflow-hidden mt-[-10px]">
+                  <div className="px-8 py-5 border-b border-zinc-50">
+                    <p className="text-[10px] uppercase tracking-widest text-zinc-400 font-black mb-1">
+                      Identity
                     </p>
+                    <p className="text-base font-black text-zinc-900 truncate">{userInfo.name}</p>
+                  </div>
+
+                  <div className="py-3">
                     <Link
                       to="/profile"
-                      className="flex items-center px-4 py-3 text-sm hover:bg-white/5 transition-colors">
-                      <UserCircle className="w-4 h-4 mr-3" /> Profile
+                      className="flex items-center px-8 py-4 text-[13px] font-bold uppercase tracking-widest text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900">
+                      <UserCircle className="w-5 h-5 mr-4" /> Profile
                     </Link>
                     <Link
                       to="/shipping"
-                      className="flex items-center px-4 py-3 text-sm hover:bg-white/5 transition-colors">
-                      <Package className="w-4 h-4 mr-3" /> Shipping
+                      className="flex items-center px-8 py-4 text-[13px] font-bold uppercase tracking-widest text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900">
+                      <Package className="w-5 h-5 mr-4" /> Shipping
                     </Link>
 
-                    {/* Admin Section within Dropdown */}
                     {userInfo.isAdmin && (
-                      <>
-                        <p className="px-4 py-2 text-[10px] uppercase tracking-widest text-orange-500 border-y border-white/5 my-2">
-                          Admin Panel
+                      <div className="mt-2 pt-2 border-t border-zinc-50">
+                        <p className="px-8 pb-2 pt-2 text-[10px] font-black text-zinc-900 uppercase tracking-widest">
+                          Admin Control
                         </p>
                         <Link
                           to="/admin/orderlistadmin"
-                          className="flex items-center px-4 py-3 text-sm hover:bg-white/5 transition-colors">
+                          className="block px-8 py-3 text-[12px] font-bold text-zinc-500 hover:text-zinc-900 uppercase tracking-widest">
                           Orders
                         </Link>
                         <Link
                           to="/admin/users"
-                          className="flex items-center px-4 py-3 text-sm hover:bg-white/5 transition-colors">
+                          className="block px-8 py-3 text-[12px] font-bold text-zinc-500 hover:text-zinc-900 uppercase tracking-widest">
                           Users
                         </Link>
                         <Link
                           to="/admin/productlistadmin"
-                          className="flex items-center px-4 py-3 text-sm hover:bg-white/5 transition-colors">
+                          className="block px-8 py-3 text-[12px] font-bold text-zinc-500 hover:text-zinc-900 uppercase tracking-widest">
                           Products
                         </Link>
                         <Link
-                          to="/admin/components"
-                          className="flex items-center px-4 py-3 text-sm hover:bg-white/5 transition-colors">
-                          components
+                          to="/admin/reviews"
+                          className="block px-8 py-3 text-[12px] font-bold text-zinc-500 hover:text-zinc-900 uppercase tracking-widest">
+                          Reviews
                         </Link>
-                      </>
+                      </div>
                     )}
 
                     <button
                       onClick={logoutHandler}
-                      className="w-full flex items-center px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 border-t border-white/5 transition-colors mt-2">
-                      <LogOut className="w-4 h-4 mr-3" /> Logout
+                      className="w-full flex items-center px-8 py-5 text-[12px] font-black uppercase tracking-widest text-red-500 border-t border-zinc-50 mt-2 hover:bg-red-50 transition-colors">
+                      <LogOut className="w-5 h-5 mr-4" /> Logout
                     </button>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Cart */}
-            <Link to="/cart" className="relative p-2 group">
-              <ShoppingBag className="w-6 h-6 group-hover:text-orange-400 transition-colors" />
+            <Link to="/cart" className="relative group">
+              <div className="bg-zinc-900 text-white p-4 rounded-full shadow-lg transition-transform group-hover:scale-110">
+                <ShoppingBag className="w-5 h-5" />
+              </div>
               {cartCount > 0 && (
-                <span className="absolute top-0 right-0 bg-orange-500 text-black text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-black">
+                <span className="absolute -top-1 -right-1 bg-white text-zinc-900 text-[10px] font-black h-6 w-6 rounded-full flex items-center justify-center border-2 border-zinc-900 shadow-md">
                   {cartCount}
                 </span>
               )}
             </Link>
 
-            {/* Mobile Toggle */}
             <button
-              className="md:hidden p-2"
+              className="md:hidden text-zinc-900 p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
+      {/* MOBILE MENU */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-black border-t border-white/10 animate-in slide-in-from-right duration-300">
-          <div className="px-6 py-8 space-y-6">
-            <ul className="flex flex-col space-y-6 text-xl font-bold tracking-tighter">
-              <li>
-                <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
-                  HOME
-                </Link>
-              </li>
-              <li>
-                <Link to="/store" onClick={() => setIsMobileMenuOpen(false)}>
-                  STORE
-                </Link>
-              </li>
-              <li>
-                <Link to="/services" onClick={() => setIsMobileMenuOpen(false)}>
-                  SERVICES
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" onClick={() => setIsMobileMenuOpen(false)}>
-                  ABOUT US
-                </Link>
-              </li>
-            </ul>
-
-            {userInfo && (
-              <div className="pt-6 border-t border-white/10">
-                <p className="text-orange-500 text-xs tracking-[0.2em] mb-4 uppercase">
-                  {userInfo.name}
-                </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <Link
-                    to="/profile"
-                    className="text-sm uppercase tracking-widest text-gray-400"
-                    onClick={() => setIsMobileMenuOpen(false)}>
-                    Profile
-                  </Link>
-                  <Link
-                    to="/shipping"
-                    className="text-sm uppercase tracking-widest text-gray-400"
-                    onClick={() => setIsMobileMenuOpen(false)}>
-                    Shipping
-                  </Link>
-                  {userInfo.isAdmin && (
-                    <Link
-                      to="/admin/orderlistadmin"
-                      className="text-sm uppercase tracking-widest text-orange-400"
-                      onClick={() => setIsMobileMenuOpen(false)}>
-                      Admin
-                    </Link>
-                  )}
-                  <button
-                    onClick={logoutHandler}
-                    className="text-sm uppercase tracking-widest text-red-500 text-left">
-                    Logout
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+        <div className="md:hidden absolute w-full left-0 top-28 bg-white border-b border-zinc-100 shadow-2xl p-10 animate-in slide-in-from-top-5">
+          <ul className="space-y-8 text-3xl font-black tracking-tighter text-zinc-900">
+            <li>
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
+                HOME
+              </Link>
+            </li>
+            <li>
+              <Link to="/store" onClick={() => setIsMobileMenuOpen(false)}>
+                STORE
+              </Link>
+            </li>
+            <li>
+              <Link to="/services" onClick={() => setIsMobileMenuOpen(false)}>
+                SERVICES
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" onClick={() => setIsMobileMenuOpen(false)}>
+                ABOUT US
+              </Link>
+            </li>
+          </ul>
         </div>
       )}
     </nav>

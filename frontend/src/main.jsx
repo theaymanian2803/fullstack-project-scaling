@@ -30,6 +30,7 @@ import OrderListAdmin from './screens/admin/OrderListAdmin'
 import EditProductScreen from './screens/admin/EditProductScreen'
 import UsersAdminScreen from './screens/admin/UsersAdminScreen'
 import UserListAdmin from './screens/admin/UserListAdmin'
+import ReviewsListAdmin from './screens/admin/ApproveReviewsScreen'
 import ContactAdmin from './screens/ContactAdmin'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
@@ -153,6 +154,10 @@ const router = createBrowserRouter([
           {
             path: 'admin/user/:id/edit',
             element: <UserListAdmin />,
+          },
+          {
+            path: 'admin/reviews',
+            element: <ReviewsListAdmin />,
           },
         ],
       },

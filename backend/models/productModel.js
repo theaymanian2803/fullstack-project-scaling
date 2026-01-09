@@ -9,6 +9,7 @@ const reviewSchema = new mongoose.Schema({
   name: { type: String, required: true },
   rating: { type: Number, required: true },
   comment: { type: String, required: true },
+  isApproved: { type: Boolean, default: false },
 })
 
 const ProductSchema = new mongoose.Schema(

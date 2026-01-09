@@ -9,7 +9,9 @@
     "server": "nodemon backend/server.js",
     "client": "npm run dev --prefix frontend",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "build": "npm install && cd frontend && npm install --include=dev && npm run build"
+    "build": "npm install && cd frontend && npm install --include=dev && npm run build",
+    "data:import": "node backend/seeder.js",
+    "data:destroy": "node backend/seeder.js -d"
   },
   "repository": {
     "type": "git",

@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { X, ChevronLeft, ChevronRight, Zap, ShieldCheck, Clock } from 'lucide-react'
+import { ChevronDown, Plus, Minus, X, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import Rating from './../components/Rating'
 import { addToCart } from './../slices/cartSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import { useGetProductDetailsQuery, useCreateReviewMutation } from './../slices/productSlice'
+import {
+  useGetProductDetailsQuery,
+  useGetProductsForHomeQuery,
+  useCreateReviewMutation,
+} from './../slices/productSlice'
 import { toast } from 'react-toastify'
 
 function Product() {
@@ -12,298 +16,375 @@ function Product() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  // Queries & Mutations
+  // Data Queries & Mutations
   const { data: product, isLoading, refetch, error } = useGetProductDetailsQuery(id)
-  const [createReview, { isLoading: reviewIsLoading }] = useCreateReviewMutation()
+  const { data: allProducts } = useGetProductsForHomeQuery()
+  const [createReview, { isLoading: loadingReview }] = useCreateReviewMutation()
 
-  // Component State
-  const [currentImage, setCurrentImage] = useState(null)
-  const [isLightboxOpen, setIsLightBoxOpen] = useState(false)
-  const [lightboxImageIndex, setLightboxImageIndex] = useState(0)
-  const [qty, setQty] = useState(1)
-  const [rating, setRating] = useState(5)
-  const [comment, setComment] = useState('')
-
+  // Redux State
   const { userInfo } = useSelector((state) => state.auth)
 
-  // Sync current image when product loads
-  useEffect(() => {
-    if (product?.images?.length > 0) {
-      setCurrentImage(product.images[0])
-    }
-  }, [product])
+  // Component State
+  const [qty, setQty] = useState(1)
+  const [selectedSize, setSelectedSize] = useState('')
+  const [lightboxIndex, setLightboxIndex] = useState(null)
+  const [activeAccordion, setActiveAccordion] = useState('description')
 
-  // Reset Qty when ID changes
+  // Review Form State
+  const [rating, setRating] = useState(0)
+  const [comment, setComment] = useState('')
+
   useEffect(() => {
     setQty(1)
+    setSelectedSize('')
+    window.scrollTo(0, 0)
   }, [id])
 
+  const toggleAccordion = (section) => {
+    setActiveAccordion(activeAccordion === section ? null : section)
+  }
+
   const addToCartHandler = () => {
-    dispatch(addToCart({ ...product, qty }))
+    if (product?.sizes?.length > 0 && !selectedSize) {
+      toast.error('Please select a size')
+      return
+    }
+    dispatch(addToCart({ ...product, qty, size: selectedSize }))
     navigate('/cart')
   }
 
-  const reviewHandlerSubmit = async (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault()
+    if (!rating || !comment) {
+      toast.error('Please provide a rating and comment')
+      return
+    }
     try {
       await createReview({ productId: id, rating, comment }).unwrap()
       refetch()
-      setRating(5)
+      toast.success('Review submitted for moderation')
+      setRating(0)
       setComment('')
-      toast.success('REVIEW_LOGGED_SUCCESSFULLY')
     } catch (err) {
-      toast.error(err?.data?.message || 'SUBMISSION_FAILED')
+      toast.error(err?.data?.message || err.error)
     }
   }
 
-  const openLightBox = (imgSrc) => {
-    const index = product.images.indexOf(imgSrc)
-    setLightboxImageIndex(index !== -1 ? index : 0)
-    setIsLightBoxOpen(true)
+  // Related Product Logic
+  const wearItWith = allProducts
+    ?.filter((p) => p._id !== id && p.category === product?.category)
+    .slice(0, 4)
+  const relatedProducts = allProducts?.filter((p) => p._id !== id).slice(0, 4)
+
+  // Lightbox Navigation
+  const nextImage = (e) => {
+    e.stopPropagation()
+    setLightboxIndex((prev) => (prev + 1) % product.images.length)
+  }
+  const prevImage = (e) => {
+    e.stopPropagation()
+    setLightboxIndex((prev) => (prev - 1 + product.images.length) % product.images.length)
   }
 
   if (isLoading)
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <h1 className="text-white font-black text-4xl italic animate-pulse tracking-widest">
-          LOADING_SYSTEM...
-        </h1>
+      <div className="min-h-screen flex items-center justify-center font-serif italic text-zinc-400">
+        Loading Collection...
       </div>
     )
-
   if (error)
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <h1 className="text-orange-600 font-black text-2xl uppercase">
-          ERROR // {error?.data?.message || 'FETCH_FAILED'}
-        </h1>
+      <div className="min-h-screen flex items-center justify-center text-red-500 uppercase tracking-widest">
+        Error // {error?.data?.message}
       </div>
     )
 
   return (
-    <div className="min-h-screen bg-black text-white font-medium pb-20">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-8">
-        {/* BREADCRUMB */}
-        <div className="py-8 text-xs font-black uppercase tracking-[0.4em] text-zinc-500">
-          <Link to="/" className="hover:text-white transition">
-            HOME
-          </Link>
-          <span className="mx-4 text-zinc-800">//</span>
-          <span className="text-orange-600 italic uppercase">
-            EXCLUSIVE DESIGN FAST LANE Collection – Built for Speed, Not Excuses
-          </span>
+    <div className="bg-white text-zinc-900 font-sans selection:bg-zinc-100 relative">
+      {/* --- LIGHTBOX OVERLAY --- */}
+      {lightboxIndex !== null && (
+        <div
+          className="fixed inset-0 z-[110] bg-white/98 backdrop-blur-md flex items-center justify-center transition-all duration-500"
+          onClick={() => setLightboxIndex(null)}>
+          <button className="absolute top-8 right-10 text-zinc-400 hover:text-black transition-colors z-[110]">
+            <X size={32} strokeWidth={1} />
+          </button>
+          <button
+            onClick={prevImage}
+            className="absolute left-4 md:left-12 p-4 text-zinc-300 hover:text-black transition-colors z-[110]">
+            <ChevronLeft size={48} strokeWidth={1} />
+          </button>
+          <div className="relative w-[90vw] md:w-auto h-[70vh] md:h-[80vh] aspect-3/4 bg-zinc-50 shadow-sm overflow-hidden">
+            <img
+              src={product.images[lightboxIndex]}
+              alt="Full view"
+              className="w-full h-full object-cover animate-in fade-in zoom-in duration-500"
+            />
+          </div>
+          <button
+            onClick={nextImage}
+            className="absolute right-4 md:right-12 p-4 text-zinc-300 hover:text-black transition-colors z-[110]">
+            <ChevronRight size={48} strokeWidth={1} />
+          </button>
         </div>
+      )}
 
-        {/* MAIN PRODUCT GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-          {/* LEFT: IMAGES & SPECS */}
-          <div className="space-y-10">
-            <div
-              className="bg-zinc-900 border-2 border-zinc-900 cursor-crosshair group relative overflow-hidden"
-              onClick={() => openLightBox(currentImage)}>
-              <div className="absolute inset-0 bg-orange-600/10 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
-                <span className="text-white font-black uppercase tracking-tighter text-sm border-2 border-white px-4 py-2">
-                  Expand_View
-                </span>
-              </div>
-              <img
-                src={currentImage}
-                alt="Product"
-                className="w-full h-auto transition-transform duration-700 group-hover:scale-110"
-              />
-            </div>
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12">
+        <nav className="py-8 text-[10px] uppercase tracking-[0.4em] text-zinc-400 flex items-center gap-3">
+          <Link to="/" className="hover:text-black transition-colors">
+            Home
+          </Link>
+          <span className="text-zinc-200">/</span>
+          <span className="text-zinc-900 font-semibold">{product.category}</span>
+        </nav>
 
-            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-              {product.images?.map((img, idx) => (
+        <div className="flex flex-col lg:flex-row gap-16 xl:gap-24">
+          {/* LEFT: IMAGE GALLERY */}
+          <div className="lg:w-[62%] space-y-8">
+            {product.images?.map((img, idx) => (
+              <div
+                key={idx}
+                className="bg-zinc-50 overflow-hidden cursor-zoom-in group"
+                onClick={() => setLightboxIndex(idx)}>
                 <img
-                  key={idx}
                   src={img}
-                  alt="thumbnail"
-                  className={`w-24 h-24 object-cover cursor-pointer border-2 transition-all ${
-                    currentImage === img
-                      ? 'border-orange-600 scale-95'
-                      : 'border-zinc-800 opacity-50 hover:opacity-100'
-                  }`}
-                  onClick={() => setCurrentImage(img)}
+                  alt={`${product.name} view ${idx}`}
+                  className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-[1.2s] ease-out"
                 />
-              ))}
-            </div>
-
-            {/* FEATURES GRID */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-10 border-t border-zinc-900">
-              {product.otherFeatures?.map((f, i) => (
-                <div key={i} className="space-y-2">
-                  <h3 className="text-lg font-black uppercase italic text-orange-600 flex items-center gap-2">
-                    <Zap size={16} /> {f.title}
-                  </h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed uppercase">{f.text}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* ADDITIONAL META */}
-            <div className="grid grid-cols-2 gap-7 border-t border-zinc-900 pt-10">
-              <div>
-                <h3 className="text-lg font-bold mb-1 uppercase tracking-widest text-orange-600">
-                  {product?.lifetimeAccess?.title}
-                </h3>
-                <p className="text-zinc-500 text-sm">{product?.lifetimeAccess?.text}</p>
               </div>
-              <div>
-                <h3 className="text-lg font-bold mb-1 uppercase tracking-widest text-orange-600">
-                  {product?.programCompatibility?.title}
-                </h3>
-                <p
-                  className="text-zinc-500 text-sm"
-                  dangerouslySetInnerHTML={{
-                    __html: product?.programCompatibility?.text?.replace(
-                      /\*\*(.*?)\*\*/g,
-                      '<strong>$1</strong>'
-                    ),
-                  }}></p>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* RIGHT: BUY ACTIONS & DETAILS */}
-          <div className="space-y-10">
-            <div>
-              <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-4 italic ">
-                {product.name}
-              </h1>
-              <div className="flex items-center gap-8 border-y border-zinc-900 py-6">
-                <span className="text-4xl font-black text-orange-600 italic tracking-tighter">
-                  ${product.price}
-                </span>
-                <Rating value={product.rating} text={`${product.numReviews || 0} REVIEWS`} />
-              </div>
-            </div>
+          {/* RIGHT: PRODUCT DETAILS */}
+          <div className="lg:w-[38%]">
+            <div className="lg:sticky lg:top-12 space-y-10 pb-20">
+              <header className="space-y-4">
+                <p className="text-[11px] uppercase tracking-[0.3em] text-zinc-400 font-bold">
+                  {product.brand || 'Original Edition'}
+                </p>
+                <h1 className="text-4xl xl:text-5xl font-serif text-zinc-800 leading-[1.15] tracking-tight">
+                  {product.name}
+                </h1>
+                <div className="flex items-center justify-between border-b border-zinc-100 pb-6">
+                  <span className="text-2xl font-light text-zinc-600">${product.price}.00</span>
+                  <Rating value={product.rating} text={`${product.numReviews} Reviews`} />
+                </div>
+              </header>
 
-            <div className="bg-zinc-900/30 p-8 border border-zinc-900 space-y-8">
-              <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest">
-                <span className="text-zinc-500">SYSTEM_STATUS</span>
-                <span className={product.countInStock > 0 ? 'text-emerald-500' : 'text-red-600'}>
-                  {product.countInStock > 0 ? 'IN_STOCK' : 'DEPLETED'}
-                </span>
-              </div>
-
-              {product.countInStock > 0 && (
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase text-zinc-600">
-                    QUANTITY_SELECT
-                  </label>
-                  <select
-                    value={qty}
-                    onChange={(e) => setQty(Number(e.target.value))}
-                    className="w-full bg-black border border-zinc-800 p-4 text-white font-black outline-none focus:border-orange-600 appearance-none">
-                    {[...Array(product.countInStock).keys()].map((x) => (
-                      <option key={x + 1} value={x + 1}>
-                        {x + 1}
-                      </option>
+              {product.sizes && product.sizes.length > 0 && (
+                <div className="space-y-5">
+                  <div className="flex justify-between items-end">
+                    <label className="text-[11px] uppercase font-bold tracking-widest">
+                      Size:{' '}
+                      <span className="font-normal text-zinc-400 ml-2">
+                        {selectedSize || 'Select Selection'}
+                      </span>
+                    </label>
+                    <button className="text-[10px] underline uppercase tracking-[0.2em] text-zinc-400 hover:text-black">
+                      Size Guide
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {product.sizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`py-4 text-xs transition-all duration-300 border ${
+                          selectedSize === size
+                            ? 'border-black bg-black text-white shadow-md'
+                            : 'border-zinc-100 hover:border-zinc-400 text-zinc-600'
+                        }`}>
+                        {size}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
               )}
 
-              <button
-                onClick={addToCartHandler}
-                disabled={product.countInStock === 0}
-                className="w-full py-6 bg-white text-black font-black text-xl uppercase tracking-tighter hover:bg-orange-600 hover:text-white transition-all duration-300 disabled:bg-zinc-800">
-                add to cart
-              </button>
+              <div className="pt-2">
+                <button
+                  onClick={addToCartHandler}
+                  disabled={product.countInStock === 0}
+                  className="w-full py-5 bg-zinc-900 text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-black transition-all active:scale-[0.99] disabled:bg-zinc-50 disabled:text-zinc-300">
+                  {product.countInStock > 0 ? 'Add to Bag' : 'Sold Out'}
+                </button>
+              </div>
+
+              {/* ACCORDIONS */}
+              <div className="border-t border-zinc-100 pt-2">
+                <div className="border-b border-zinc-100">
+                  <button
+                    onClick={() => toggleAccordion('description')}
+                    className="w-full py-6 flex justify-between items-center group">
+                    <h3 className="text-sm font-serif italic">Description</h3>
+                    <ChevronDown
+                      size={14}
+                      className={`transition-transform duration-300 ${
+                        activeAccordion === 'description' ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                      activeAccordion === 'description' ? 'max-h-96 pb-6' : 'max-h-0'
+                    }`}>
+                    <p className="text-[13px] text-zinc-500 leading-relaxed font-light">
+                      {product.description || 'Description not available'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* WEAR IT WITH */}
+              {wearItWith?.length > 0 && (
+                <div className="pt-8">
+                  <h2 className="text-[13px] uppercase tracking-widest font-bold mb-8 border-l-2 border-black pl-4">
+                    Wear It With
+                  </h2>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-10">
+                    {wearItWith.map((item) => (
+                      <Link key={item._id} to={`/product/${item._id}`} className="group space-y-3">
+                        <div className="relative aspect-3/4 bg-zinc-50 overflow-hidden">
+                          <img
+                            src={item.images?.[0] || item.image}
+                            alt={item.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-[10px] uppercase font-bold truncate tracking-tight text-zinc-800">
+                            {item.name}
+                          </h4>
+                          <p className="text-[10px] font-light text-zinc-500">${item.price}.00</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* --- REVIEWS SECTION (MODIFIED FOR MODERATION) --- */}
+        <div className="mt-32 pt-24 border-t border-zinc-100">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+            <div>
+              <h2 className="text-4xl font-serif italic text-zinc-800 mb-12">Reviews</h2>
+
+              {/* Check if there are any APPROVED reviews */}
+              {product.reviews.filter((r) => r.isApproved).length === 0 && (
+                <p className="text-zinc-400 font-serif italic">No reviews yet for this piece.</p>
+              )}
+
+              <div className="space-y-12">
+                {/* FILTER: Only map through reviews where isApproved is true */}
+                {product.reviews
+                  .filter((review) => review.isApproved === true)
+                  .map((review) => (
+                    <div key={review._id} className="pb-8 border-b border-zinc-50 space-y-3">
+                      <div className="flex justify-between items-center">
+                        <strong className="text-[11px] uppercase tracking-widest">
+                          {review.name}
+                        </strong>
+                        <span className="text-[10px] text-zinc-400">
+                          {review.createdAt?.substring(0, 10) || 'Just now'}
+                        </span>
+                      </div>
+                      <Rating value={review.rating} />
+                      <p className="text-sm text-zinc-600 font-light leading-relaxed italic">
+                        "{review.comment}"
+                      </p>
+                    </div>
+                  ))}
+              </div>
             </div>
 
-            {/* PRODUCT METADATA */}
-            <div className="space-y-8">
-              <section>
-                <h2 className="text-xs font-black uppercase tracking-[0.4em] text-orange-600 mb-4">
-                  // Description
-                </h2>
-                <p className="text-zinc-400 text-lg font-medium leading-relaxed uppercase italic">
-                  {product.description}
+            <div className="bg-zinc-50 p-10">
+              <h3 className="text-lg font-serif italic mb-6">Write a Review</h3>
+              {userInfo ? (
+                <form onSubmit={submitHandler} className="space-y-6">
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold tracking-widest mb-3">
+                      Rating
+                    </label>
+                    <select
+                      value={rating}
+                      onChange={(e) => setRating(Number(e.target.value))}
+                      className="w-full bg-white border border-zinc-200 p-4 text-xs outline-none focus:border-black transition-colors">
+                      <option value="">Select Rating</option>
+                      <option value="1">1 - Poor</option>
+                      <option value="2">2 - Fair</option>
+                      <option value="3">3 - Good</option>
+                      <option value="4">4 - Very Good</option>
+                      <option value="5">5 - Excellent</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold tracking-widest mb-3">
+                      Comment
+                    </label>
+                    <textarea
+                      rows="4"
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      className="w-full bg-white border border-zinc-200 p-4 text-xs outline-none focus:border-black transition-colors"
+                      placeholder="Share your thoughts..."></textarea>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loadingReview}
+                    className="px-10 py-4 bg-zinc-900 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-black transition-all">
+                    {loadingReview ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                  <p className="text-[9px] text-zinc-400 uppercase tracking-tighter">
+                    * All reviews are moderated before appearing on the site.
+                  </p>
+                </form>
+              ) : (
+                <p className="text-xs text-zinc-500 tracking-wide uppercase">
+                  Please{' '}
+                  <Link to="/login" className="font-bold underline text-black">
+                    sign in
+                  </Link>{' '}
+                  to write a review.
                 </p>
-              </section>
-              <section className="grid grid-cols-2 gap-6 border-t border-zinc-900 pt-6">
-                <div>
-                  <h3 className="text-[10px] font-black uppercase text-zinc-600 tracking-widest">
-                    Format
-                  </h3>
-                  <p className="text-white font-black uppercase italic">{product.format}</p>
-                </div>
-                <div>
-                  <h3 className="text-[10px] font-black uppercase text-zinc-600 tracking-widest">
-                    License
-                  </h3>
-                  <p className="text-white font-black uppercase italic">{product.license}</p>
-                </div>
-              </section>
+              )}
             </div>
           </div>
         </div>
 
-        {/* REVIEWS SECTION */}
-        <div className="mt-40 border-t-2 border-zinc-900 pt-20">
-          <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter italic mb-16">
-            USER_<span className="text-orange-600">reviews</span>
-          </h2>
-          {/* ... existing review mapping logic ... */}
-        </div>
+        {/* BOTTOM: RELATED COLLECTION */}
+        {relatedProducts?.length > 0 && (
+          <section className="mt-32 pt-24 border-t border-zinc-100 pb-24">
+            <div className="flex justify-between items-end mb-16">
+              <h2 className="text-4xl font-serif italic text-zinc-800">You May Also Like</h2>
+              <Link
+                to="/store"
+                className="text-[10px] uppercase font-bold tracking-[0.3em] border-b border-black pb-1 flex items-center gap-3 hover:pr-4 transition-all">
+                The Gallery <ArrowRight size={14} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+              {relatedProducts.map((item) => (
+                <Link key={item._id} to={`/product/${item._id}`} className="group block">
+                  <div className="relative aspect-3/4 bg-zinc-50 mb-6 overflow-hidden">
+                    <img
+                      src={item.images?.[0] || item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover group-hover:scale-[1.05] transition-transform duration-1000"
+                    />
+                  </div>
+                  <h4 className="text-xs uppercase tracking-widest text-zinc-800 group-hover:underline decoration-zinc-300 mb-1">
+                    {item.name}
+                  </h4>
+                  <p className="text-sm font-light text-zinc-500">${item.price}.00</p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
-
-      {/* LIGHTBOX MODAL - FIXED DIMENSIONS REDESIGN */}
-      {isLightboxOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-2xl z-[999] flex items-center justify-center p-4 transition-all duration-500"
-          onClick={() => setIsLightBoxOpen(false)}>
-          {/* Close Button */}
-          <button
-            onClick={() => setIsLightBoxOpen(false)}
-            className="absolute top-8 right-8 text-white hover:text-orange-600 transition-all hover:rotate-90 z-20 bg-black/50 p-2 rounded-full border border-white/10">
-            <X size={32} strokeWidth={3} />
-          </button>
-
-          {/* Controls UI */}
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-6 md:px-12 pointer-events-none z-10">
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                setLightboxImageIndex((prev) => (prev === 0 ? product.images.length - 1 : prev - 1))
-              }}
-              className="pointer-events-auto w-14 h-14 rounded-full bg-black/50 hover:bg-orange-600 text-white flex items-center justify-center transition-all border border-white/10 group">
-              <ChevronLeft size={28} className="group-hover:-translate-x-1 transition-transform" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                setLightboxImageIndex((prev) => (prev === product.images.length - 1 ? 0 : prev + 1))
-              }}
-              className="pointer-events-auto w-14 h-14 rounded-full bg-black/50 hover:bg-orange-600 text-white flex items-center justify-center transition-all border border-white/10 group">
-              <ChevronRight size={28} className="group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-
-          {/* Image Frame with Fixed Dimensions */}
-          <div className="relative flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
-            {/* Tech Accents */}
-            <div className="absolute -top-3 -left-3 w-8 h-8 border-t-2 border-l-2 border-orange-600"></div>
-            <div className="absolute -top-3 -right-3 w-8 h-8 border-t-2 border-r-2 border-orange-600"></div>
-            <div className="absolute -bottom-3 -left-3 w-8 h-8 border-b-2 border-l-2 border-orange-600"></div>
-            <div className="absolute -bottom-3 -right-3 w-8 h-8 border-b-2 border-r-2 border-orange-600"></div>
-
-            {/* FIXED ASPECT RATIO CONTAINER */}
-            <div className="bg-zinc-900 border border-zinc-800 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden">
-              <img
-                key={lightboxImageIndex} // Key forces animation re-trigger on change
-                src={product.images[lightboxImageIndex]}
-                alt="fullview"
-                className="w-[90vw] h-[60vh] md:w-[800px] md:h-[600px] object-cover animate-in fade-in zoom-in-95 duration-500"
-              />
-            </div>
-
-            {/* Info Strip */}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

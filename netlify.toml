@@ -1,19 +1,17 @@
 [build]
-  # This tells Netlify to install dependencies from your root package.json
+  # Tell Netlify where the frontend code actually lives
+  base = "frontend" 
+  # This command now runs INSIDE the /frontend folder
   command = "npm run build"
-  # Where your frontend build (React/Vite/etc) goes
-  publish = "dist" 
+  # This path is now RELATIVE to the base (frontend/dist)
+  publish = "dist"
 
 [functions]
-  # This is the folder we created to "wrap" your backend
-  directory = "netlify/functions"
-  # Ensures all your imports in server.js are bundled correctly
-  node_bundler = "esbuild"
-  external_node_modules = ["express"]
+  # Functions are usually kept at the root or a separate folder
+  # Since your bridge is at root/netlify/functions, use an absolute path
+  directory = "../netlify/functions"
 
 [[redirects]]
-  # This makes your site work like a real server
-  # It takes any request to /api/products and sends it to your function
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200

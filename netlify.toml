@@ -1,17 +1,33 @@
 [build]
-  # Leave base empty so Netlify installs dependencies from the root package.json
-  base = "" 
-  # Manually go into the frontend folder to build
-  command = "cd frontend && npm install && npm run build"
-  # Path to the build output from the root
+  # 1. Leave base empty so Netlify starts in the root where your main package.json is.
+  base = ""
+
+  # 2. This command ensures both root and frontend dependencies are installed before building.
+  command = "npm install && cd frontend && npm install && npm run build"
+
+  # 3. Point to the folder Vite creates inside your frontend directory.
   publish = "frontend/dist"
 
+[build.environment]
+  # 4. Ensures Vite and other dev tools are installed even in production mode.
+  NPM_CONFIG_PRODUCTION = "false"
+  NODE_ENV = "production"
+
 [functions]
-  # Point to your backend bridge
+  # 5. Point to your backend bridge folder.
   directory = "netlify/functions"
+  # Uses the fastest bundler to handle your Express imports.
+  node_bundler = "esbuild"
 
 [[redirects]]
+  # 6. This proxies all frontend /api calls to your serverless backend.
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
+
+[[redirects]]
+  # 7. Standard SPA routing (prevents 404 errors when you refresh the page).
+  from = "/*"
+  to = "/index.html"
+  status = 200

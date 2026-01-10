@@ -1,15 +1,14 @@
 [build]
-  # Tell Netlify where the frontend code actually lives
-  base = "frontend" 
-  # This command now runs INSIDE the /frontend folder
-  command = "npm run build"
-  # This path is now RELATIVE to the base (frontend/dist)
-  publish = "dist"
+  # Leave base empty so Netlify installs dependencies from the root package.json
+  base = "" 
+  # Manually go into the frontend folder to build
+  command = "cd frontend && npm install && npm run build"
+  # Path to the build output from the root
+  publish = "frontend/dist"
 
 [functions]
-  # Functions are usually kept at the root or a separate folder
-  # Since your bridge is at root/netlify/functions, use an absolute path
-  directory = "../netlify/functions"
+  # Point to your backend bridge
+  directory = "netlify/functions"
 
 [[redirects]]
   from = "/api/*"

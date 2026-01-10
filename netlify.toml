@@ -1,22 +1,26 @@
 [build]
+  # Leave base empty so we start at the very top (the root)
   base = ""
-  # Install backend deps, then frontend deps, then build
+  # Installs backend tools, then frontend tools, then builds the React app
   command = "npm install && cd frontend && npm install --include=dev && npm run build"
   publish = "frontend/dist"
 
 [functions]
+  # This points to the folder now at the root
   directory = "netlify/functions"
   node_bundler = "esbuild"
+  # This makes sure these critical packages are bundled for your API
+  external_node_modules = ["express", "mongoose", "serverless-http"]
 
 [[redirects]]
-  # Routes /api/products -> Express backend
+  # This maps your frontend calls (/api/products) to your bridge function
   from = "/api/*"
   to = "/.netlify/functions/api/api/:splat"
   status = 200
   force = true
 
 [[redirects]]
-  # Essential for React Router (prevents 404 on refresh)
+  # This allows React Router to work when you refresh the page
   from = "/*"
   to = "/index.html"
   status = 200

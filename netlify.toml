@@ -10,14 +10,13 @@
   external_node_modules = ["express", "mongoose", "serverless-http"]
 
 [[redirects]]
-  # This takes /api/products and sends /api/products to the function
   from = "/api/*"
+  # We send the request to the function, but KEEP the full path
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
 [[redirects]]
-  # Keeps React Router working on page refresh
   from = "/*"
   to = "/index.html"
   status = 200

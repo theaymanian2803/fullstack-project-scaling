@@ -1,28 +1,23 @@
 [build]
-  # 1. Leave base empty so Netlify sees your root package.json for the backend.
   base = ""
-
-  # 2. Netlify installs root dependencies automatically. We only need to install and build the frontend.
-  command = "cd frontend && npm install && npm run build"
-
-  # 3. Vite builds to the "dist" folder inside your "frontend" directory.
+  # Added --include=dev to force npm to install Vite and its plugins
+  command = "cd frontend && npm install --include=dev && npm run build"
   publish = "frontend/dist"
 
 [functions]
-  # 4. Point to where your serverless bridge (api.js) is located.
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
 [[redirects]]
-  # 5. THE FIX: Redirect /api/ calls so Express sees the "/api" prefix.
-  # If you call /api/products, this sends it to your function as /api/products.
+  # This routes /api/products -> /.netlify/functions/api/api/products
+  # This ensures your Express app sees the "/api" prefix it expects.
   from = "/api/*"
   to = "/.netlify/functions/api/api/:splat"
   status = 200
   force = true
 
 [[redirects]]
-  # 6. Standard routing for React/Vite SPAs.
+  # Handles React Router page refreshes
   from = "/*"
   to = "/index.html"
   status = 200

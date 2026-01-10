@@ -1,26 +1,30 @@
 [build]
-  # Leave base empty so we start at the very top (the root)
+  # Start from the root folder
   base = ""
-  # Installs backend tools, then frontend tools, then builds the React app
+  # 1. Install root (backend) deps
+  # 2. Go to frontend, install dev-deps (Vite), and build
   command = "npm install && cd frontend && npm install --include=dev && npm run build"
+  # Point to the dist folder inside the frontend folder
   publish = "frontend/dist"
 
 [functions]
-  # This points to the folder now at the root
+  # Tell Netlify where your serverless bridge is
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  # This makes sure these critical packages are bundled for your API
-  external_node_modules = ["express", "mongoose", "serverless-http"]
+  # Force inclusion of backend packages
+  external_node_modules = ["express", "mongoose", "serverless-http", "dotenv", "cors", "cookie-parser"]
 
 [[redirects]]
-  # This maps your frontend calls (/api/products) to your bridge function
+  # This matches your frontend calls (e.g., /api/products)
+  # It sends the request to your 'api' function.
+  # We use /:splat so Express sees the FULL path (/api/products)
   from = "/api/*"
-  to = "/.netlify/functions/api/api/:splat"
+  to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
 [[redirects]]
-  # This allows React Router to work when you refresh the page
+  # This handles React SPA routing so refreshing pages doesn't 404
   from = "/*"
   to = "/index.html"
   status = 200

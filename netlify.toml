@@ -1,0 +1,20 @@
+[build]
+  # This tells Netlify to install dependencies from your root package.json
+  command = "npm run build"
+  # Where your frontend build (React/Vite/etc) goes
+  publish = "dist" 
+
+[functions]
+  # This is the folder we created to "wrap" your backend
+  directory = "netlify/functions"
+  # Ensures all your imports in server.js are bundled correctly
+  node_bundler = "esbuild"
+  external_node_modules = ["express"]
+
+[[redirects]]
+  # This makes your site work like a real server
+  # It takes any request to /api/products and sends it to your function
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true

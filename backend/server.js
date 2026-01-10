@@ -56,16 +56,16 @@ const __dirname = path.dirname(__filename)
 
 // Static folder for uploaded images
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')))
-if (process.env.NODE_ENV === 'production') {
-  // Go up from /backend to /root, then into /frontend/dist
-  const frontendPath = path.join(__dirname, '..', 'frontend', 'dist')
+// if (process.env.NODE_ENV === 'production') {
+//   // Go up from /backend to /root, then into /frontend/dist
+//   const frontendPath = path.join(__dirname, '..', 'frontend', 'dist')
 
-  app.use(express.static(frontendPath))
+//   app.use(express.static(frontendPath))
 
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'))
-  })
-}
+//   app.get('*', (req, res) => {
+//     res.sendFile(path.join(frontendPath, 'index.html'))
+//   })
+// }
 
 // 4. ERROR HANDLING (Must be after all routes)
 app.use(notFound)

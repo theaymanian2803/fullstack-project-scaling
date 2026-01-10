@@ -32,7 +32,7 @@ app.use(cookieParser())
 // CORS Logic
 app.use(
   cors({
-    origin: ['https://unccodestore.netlify.app', 'http://localhost:5173'],
+    origin: true,
     credentials: true,
   })
 )

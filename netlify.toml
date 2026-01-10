@@ -1,6 +1,5 @@
 [build]
   base = ""
-  # Installs backend deps, then frontend deps, then builds
   command = "npm install && cd frontend && npm install --include=dev && npm run build"
   publish = "frontend/dist"
 
@@ -10,13 +9,16 @@
   external_node_modules = ["express", "mongoose", "serverless-http"]
 
 [[redirects]]
+  # This matches /api/products and sends it to your bridge function
+  # We only use ONE /api here because your server.js adds the other one
   from = "/api/*"
-  # We send the request to the function, but KEEP the full path
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
 [[redirects]]
+  # This MUST stay at the bottom. 
+  # It catches everything else and sends it to React.
   from = "/*"
   to = "/index.html"
   status = 200

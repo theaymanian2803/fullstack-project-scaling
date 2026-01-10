@@ -1,7 +1,6 @@
 [build]
-  # Start from root to find your backend dependencies
   base = ""
-  # --include=dev is MANDATORY to prevent the Vite/React plugin error
+  # Install backend deps, then frontend deps, then build
   command = "npm install && cd frontend && npm install --include=dev && npm run build"
   publish = "frontend/dist"
 
@@ -10,15 +9,14 @@
   node_bundler = "esbuild"
 
 [[redirects]]
-  # Routes /api/products -> /.netlify/functions/api/api/products
-  # This "double /api" ensures Express matches your 'app.use("/api/products", ...)'
+  # Routes /api/products -> Express backend
   from = "/api/*"
   to = "/.netlify/functions/api/api/:splat"
   status = 200
   force = true
 
 [[redirects]]
-  # Standard SPA routing for React
+  # Essential for React Router (prevents 404 on refresh)
   from = "/*"
   to = "/index.html"
   status = 200
